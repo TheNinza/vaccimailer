@@ -1,35 +1,35 @@
 const dotenv = require("dotenv");
-const nodemailer = require("nodemailer");
+// const nodemailer = require("nodemailer");
 const https = require("https");
 const express = require("express");
 
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.GMAIL_EMAIL,
-    pass: process.env.GMAIL_PASS,
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: process.env.GMAIL_EMAIL,
+//     pass: process.env.GMAIL_PASS,
+//   },
+// });
 
-const sendEmail = (text) => {
-  transporter.sendMail(
-    {
-      from: process.env.GMAIL_EMAIL,
-      to: process.env.GMAIL_EMAIL_REC,
-      subject: "Cowin available",
-      text,
-    },
-    (err, info) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log(info);
-      }
-    }
-  );
-};
+// const sendEmail = (text) => {
+//   transporter.sendMail(
+//     {
+//       from: process.env.GMAIL_EMAIL,
+//       to: process.env.GMAIL_EMAIL_REC,
+//       subject: "Cowin available",
+//       text,
+//     },
+//     (err, info) => {
+//       if (err) {
+//         console.log(err);
+//       } else {
+//         console.log(info);
+//       }
+//     }
+//   );
+// };
 
 // sendEmail("first email from dummy server");
 
@@ -66,7 +66,7 @@ function getData() {
 
         if (availableSlots.length > 0) {
           console.log(availableSlots);
-          sendEmail("Vaccination available in your city");
+          // sendEmail("Vaccination available in your city");
           clearInterval(myInt);
         } else {
           const date = new Date();
