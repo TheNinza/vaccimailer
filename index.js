@@ -1,7 +1,7 @@
 const dotenv = require("dotenv");
 const nodemailer = require("nodemailer");
-const http = require("http");
 const https = require("https");
+const express = require("express");
 
 dotenv.config();
 
@@ -95,9 +95,14 @@ const myInt = setInterval(() => {
 }, 30000);
 
 // creating a local server for fetching data-array
-http
-  .createServer(function (req, res) {
-    res.write(JSON.stringify(dataArray)); //write a response to the client
-    res.end(); //end the response
-  })
-  .listen(process.env.PORT || 8000);
+const app = express();
+
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send(dataArray);
+});
+
+app.listen(process.env.PORT || 8000, () => {
+  console.log("Started server");
+});
