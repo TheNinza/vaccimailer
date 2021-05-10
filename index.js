@@ -85,6 +85,7 @@ const myInt = setInterval(() => {
   getData();
 }, 30000);
 
+// creating a local server for fetching data-array
 http
   .createServer(function (req, res) {
     res.write(JSON.stringify(dataArray)); //write a response to the client
