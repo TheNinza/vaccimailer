@@ -1,7 +1,7 @@
-const got = require("got");
 const dotenv = require("dotenv");
 const nodemailer = require("nodemailer");
 const http = require("http");
+const https = require("https");
 
 dotenv.config();
 
@@ -31,7 +31,7 @@ const sendEmail = (text) => {
   );
 };
 
-// sendEmail("first email from server");
+// sendEmail("first email from dummy server");
 
 let dataArray = [];
 
@@ -47,30 +47,39 @@ const vaccinationDate = `${d.getDate() + 1}-0${
 const apiUrl = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pincode}&date=${vaccinationDate}`;
 
 function getData() {
-  got(apiUrl)
-    .then((response) => {
-      dataArray = JSON.parse(response.body).sessions;
-      // console.log(dataArray);
+  https
+    .get(apiUrl, (resp) => {
+      let data = "";
 
-      let availableSlots = dataArray.filter((obj) => obj.min_age_limit < 45);
+      // A chunk of data has been received.
+      resp.on("data", (chunk) => {
+        data += chunk;
+      });
 
-      // Play some sound if slots are available and get notified
+      // The whole response has been received. Print out the result.
+      resp.on("end", () => {
+        dataArray = JSON.parse(data).sessions;
+        // console.log(dataArray);
+        let availableSlots = dataArray.filter((obj) => obj.min_age_limit < 45);
 
-      if (availableSlots.length > 0) {
-        console.log(availableSlots);
-        sendEmail("Vaccination available in your city");
-        clearInterval(myInt);
-      } else {
-        const date = new Date();
-        console.log(
-          date.toTimeString(),
-          "no available slots available for",
-          vaccinationDate
-        );
-      }
+        // Play some sound if slots are available and get notified
+
+        if (availableSlots.length > 0) {
+          console.log(availableSlots);
+          sendEmail("Vaccination available in your city");
+          clearInterval(myInt);
+        } else {
+          const date = new Date();
+          console.log(
+            date.toTimeString(),
+            "no available slots available for",
+            vaccinationDate
+          );
+        }
+      });
     })
-    .catch((error) => {
-      console.log(error);
+    .on("error", (err) => {
+      console.log("Error: " + err.message);
     });
 }
 
