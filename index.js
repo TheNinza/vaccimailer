@@ -58,7 +58,7 @@ function getData() {
 
       if (availableSlots.length > 0) {
         console.log(availableSlots);
-        sendEmail("Vaccination available in your city");
+        sendEmail(JSON.stringify(availableSlots, null, 2));
         clearInterval(myInt);
       } else {
         const date = new Date();
@@ -74,6 +74,9 @@ function getData() {
     });
 }
 
+console.log(apiUrl);
+console.log(vaccinationDate);
+
 getData();
 
 // console.log(
@@ -83,11 +86,11 @@ getData();
 // running function every 30 seconds
 const myInt = setInterval(() => {
   getData();
-}, 30000);
+}, 100000);
 
 http
   .createServer(function (req, res) {
-    res.write(JSON.stringify(dataArray)); //write a response to the client
+    res.write(JSON.stringify(dataArray, null, 2)); //write a response to the client
     res.end(); //end the response
   })
   .listen(process.env.PORT || 8000);
