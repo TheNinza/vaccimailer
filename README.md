@@ -1,14 +1,14 @@
 # Vaccimailer
 
-![GitHub last commit](https://img.shields.io/github/last-commit/theninza/vaccimailer?style=for-the-badge) ![GitHub issues](https://img.shields.io/github/issues/theninza/vaccimailer?style=for-the-badge) ![GitHub repo size](https://img.shields.io/github/repo-size/theninza/vaccimailer?style=for-the-badge)
 ## _Never miss covid vaccination opportunity_
 
 Vaccimailer emails you when vaccination is available at a given pincode.
 
-## Tech
+![GitHub last commit](https://img.shields.io/github/last-commit/theninza/vaccimailer?style=for-the-badge) ![GitHub issues](https://img.shields.io/github/issues/theninza/vaccimailer?style=for-the-badge) ![GitHub repo size](https://img.shields.io/github/repo-size/theninza/vaccimailer?style=for-the-badge)
 
-- Javascript
-- NodeJS
+## Tech-Stack
+
+![NodeJS](https://img.shields.io/badge/NodeJS-05122A?style=for-the-badge&logo=node.js)&nbsp;
 
 
 ## Installation
