@@ -11,8 +11,6 @@ Vaccimailer emails you when vaccination is available at a given pincode.
 
 ## Installation
 
-Dillinger requires [Node.js](https://nodejs.org/) to run.
-
 Install the dependencies and devDependencies and start the server.
 
 ```sh
@@ -36,7 +34,9 @@ By default, it checks for the next day availabilities.
 const vaccinationDate = "DD-MM-YYYY";
 ```
 
-Make sure to set your emails.
+Make sure to set your emails and passwords.
+
+For gmail, you have to create an <strong>App-Password</strong> to allow sending email on your behalf. You can crete an app password by visiting this <a href="https://myaccount.google.com/apppasswords">link.</a>
 
 ```js
 const transporter = nodemailer.createTransport({
