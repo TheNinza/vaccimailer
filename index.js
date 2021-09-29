@@ -1,7 +1,8 @@
 const got = require("got");
 const dotenv = require("dotenv");
 const nodemailer = require("nodemailer");
-const http = require("http");
+const express = require("express")
+const app = express()
 
 dotenv.config();
 
@@ -36,13 +37,15 @@ const sendEmail = (text) => {
 let dataArray = [];
 
 // add pincode and date of vaccination
-const pincode = "845401";
+const pincode = "641021";
 const d = new Date();
 
 // vaccination date is the next day in following format
 const vaccinationDate = `${d.getDate() + 1}-0${
   d.getMonth() + 1
 }-${d.getFullYear()}`;
+
+
 
 const apiUrl = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pincode}&date=${vaccinationDate}`;
 
@@ -88,9 +91,16 @@ const myInt = setInterval(() => {
   getData();
 }, 100000);
 
-http
-  .createServer(function (req, res) {
-    res.write(JSON.stringify(dataArray, null, 2)); //write a response to the client
-    res.end(); //end the response
-  })
-  .listen(process.env.PORT || 8000);
+
+
+//created a server using express 
+app.get("/",(req,res)=>{
+  res.write(JSON.stringify(dataArray, null, 2)); //write a response to the client
+  res.end(); //end the response
+})
+
+const port = process.env.PORT || 8000;
+
+app.listen(port,()=>{
+  console.log(`App is running on port ${port}`);
+})
