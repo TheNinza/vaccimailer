@@ -61,22 +61,22 @@ const getData = async() => {
       let availableSlots = dataArray.filter((obj) => obj.min_age_limit < 45);
 
       // Play some sound if slots are available and get notified
-      listener[1].emails.forEach(req_email => { // Iterate over all email addresses associated with pincode
-
-        if (availableSlots.length > 0) {
-          console.log(availableSlots);
+      
+      if (availableSlots.length > 0) {
+        console.log(availableSlots);
+        listener[1].emails.forEach(req_email => { // Iterate over all email addresses associated with pincode
           sendEmail(JSON.stringify(availableSlots, null, 2),req_email); // Send email
-          clearInterval(listener[1].interval);
-          delete listeners[listener[0]]; // Remove the listener if a mail has been sent
-        } else {
-          const date = new Date();
-          console.log(
-          date.toTimeString(),
-          "no available slots available for",
-          vaccinationDate
-          );
-        }
-      })
+        })
+        clearInterval(listener[1].interval);
+        delete listeners[listener[0]]; // Remove the listener if a mail has been sent
+      } else {
+        const date = new Date();
+        console.log(
+        date.toTimeString(),
+        "no available slots available for",
+        vaccinationDate
+        );
+      }
     })
   } catch (error) {
     console.log(error);
