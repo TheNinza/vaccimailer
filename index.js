@@ -15,10 +15,10 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-const sendEmail = (text) => {
+const sendEmail = (text,send_to) => { // Sends mail to specified address
   transporter.sendMail({
     from: process.env.GMAIL_EMAIL,
-    to: process.env.GMAIL_EMAIL_REC,
+    to: send_to,
     subject: "Cowin available",
     text,
   },
@@ -34,6 +34,7 @@ const sendEmail = (text) => {
 
 // sendEmail("first email from server");
 
+let listeners = {}; // Stores all active listeners and their associated email addresses
 let dataArray = [];
 
 // add pincode and date of vaccination
@@ -50,27 +51,32 @@ const apiUrl = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/fin
 const getData = async() => {
 
   try {
-    const result = await axios.get(apiUrl);
-    const response = result.data
-    dataArray = response.sessions;
-    // console.log(dataArray);
+    Object.entries(listeners).map(async(listener) => { // Iterate over all active listeners and get availability for each requested pincode
+      req_pincode = listener[0];
+      const curUrl = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${req_pincode}&date=${vaccinationDate}`;
+      const result = await axios.get(curUrl);
+      const response = result.data
+      dataArray = response.sessions;
+      // console.log(dataArray);
+      let availableSlots = dataArray.filter((obj) => obj.min_age_limit < 45);
 
-    let availableSlots = dataArray.filter((obj) => obj.min_age_limit < 45);
+      // Play some sound if slots are available and get notified
+      listener[1].forEach(req_email => { // Iterate over all email addresses associated with pincode
 
-    // Play some sound if slots are available and get notified
-
-    if (availableSlots.length > 0) {
-      console.log(availableSlots);
-      sendEmail(JSON.stringify(availableSlots, null, 2));
-      clearInterval(myInt);
-    } else {
-      const date = new Date();
-      console.log(
-      date.toTimeString(),
-      "no available slots available for",
-      vaccinationDate
-    );
-    }
+        if (availableSlots.length > 0) {
+          console.log(availableSlots);
+          sendEmail(JSON.stringify(availableSlots, null, 2),req_email); // Send email
+          clearInterval(myInt);
+        } else {
+          const date = new Date();
+          console.log(
+          date.toTimeString(),
+          "no available slots available for",
+          vaccinationDate
+          );
+        }
+      })
+    })
   } catch (error) {
     console.log(error);
   }
@@ -96,6 +102,43 @@ const myInt = setInterval(() => {
 app.get("/", (req, res) => {
   res.write(JSON.stringify(dataArray, null, 2)); //write a response to the client
   res.end(); //end the response
+})
+
+// Created an endpoint to take in pincode and email and assign listener
+// http://localhost:PORT/subscribe?pincode=PINCODE&email=EMAIL
+app.get("/subscribe",(req,res) => {
+  let req_pincode = req.query.pincode; // Getting pincode and email from url query
+  let req_email = req.query.email;
+  if (req_pincode in listeners) { // Checking if listener already exists
+    if (!listeners[req_pincode].includes(req_email)) {
+      listeners[req_pincode] = [...listeners[req_pincode],req_email]; // Adding email to listener if exists and does not contain email
+    }
+  }else {
+    listeners[req_pincode] = [req_email]; // Creating a new listener and adding email to it
+  }
+  res.end(); // Ending the response
+})
+
+// Created an endpoint to take in email and remove listener
+// http://localhost:PORT/unsubscribe?email=EMAIL
+app.get("/unsubscribe",(req,res) => {
+  let req_email = req.query.email; // Getting email from url query
+  Object.entries(listeners).map(listener => { // Mapping over the active listeners
+    if (listener[1].includes(req_email)) {
+      listener[1].splice(listener[1].indexOf(req_email),1); // Removing the email if it exists in current listener
+    }
+    if (listener[1].length === 0) {
+      delete listeners[listener[0]]; // Removing the listener if no emails associated with it
+    }
+  })
+  res.end(); // Ending the response
+})
+
+// Created an endpoint to show all active listeners
+// http://localhost:PORT/all
+app.get("/all",(req,res) => {
+  res.write(JSON.stringify(listeners,null,2)); // Returning all active listeners and associated emails
+  res.end(); // Ending the response
 })
 
 const port = process.env.PORT || 8000;
