@@ -61,12 +61,13 @@ const getData = async() => {
       let availableSlots = dataArray.filter((obj) => obj.min_age_limit < 45);
 
       // Play some sound if slots are available and get notified
-      listener[1].forEach(req_email => { // Iterate over all email addresses associated with pincode
+      listener[1].emails.forEach(req_email => { // Iterate over all email addresses associated with pincode
 
         if (availableSlots.length > 0) {
           console.log(availableSlots);
           sendEmail(JSON.stringify(availableSlots, null, 2),req_email); // Send email
-          clearInterval(myInt);
+          clearInterval(listener[1].interval);
+          delete listeners[listener[0]]; // Remove the listener if a mail has been sent
         } else {
           const date = new Date();
           console.log(
@@ -92,9 +93,9 @@ getData();
 // );
 
 // running function every 30 seconds
-const myInt = setInterval(() => {
-  getData();
-}, 100000);
+// const myInt = setInterval(() => {
+//   getData();
+// }, 100000);
 
 
 
@@ -110,11 +111,16 @@ app.get("/subscribe",(req,res) => {
   let req_pincode = req.query.pincode; // Getting pincode and email from url query
   let req_email = req.query.email;
   if (req_pincode in listeners) { // Checking if listener already exists
-    if (!listeners[req_pincode].includes(req_email)) {
-      listeners[req_pincode] = [...listeners[req_pincode],req_email]; // Adding email to listener if exists and does not contain email
+    if (!listeners[req_pincode].emails.includes(req_email)) {
+      listeners[req_pincode].emails = [...listeners[req_pincode].emails,req_email]; // Adding email to listener if exists and does not contain email
     }
   }else {
-    listeners[req_pincode] = [req_email]; // Creating a new listener and adding email to it
+    listeners[req_pincode] = { // Creating a new listener and adding email to it
+      emails : [req_email],
+      interval : setInterval(() => {
+        getData();
+      },100000)
+    }
   }
   res.end(); // Ending the response
 })
@@ -124,10 +130,10 @@ app.get("/subscribe",(req,res) => {
 app.get("/unsubscribe",(req,res) => {
   let req_email = req.query.email; // Getting email from url query
   Object.entries(listeners).map(listener => { // Mapping over the active listeners
-    if (listener[1].includes(req_email)) {
-      listener[1].splice(listener[1].indexOf(req_email),1); // Removing the email if it exists in current listener
+    if (listener[1].emails.includes(req_email)) {
+      listener[1].emails.splice(listener[1].emails.indexOf(req_email),1); // Removing the email if it exists in current listener
     }
-    if (listener[1].length === 0) {
+    if (listener[1].emails.length === 0) {
       delete listeners[listener[0]]; // Removing the listener if no emails associated with it
     }
   })
@@ -137,7 +143,11 @@ app.get("/unsubscribe",(req,res) => {
 // Created an endpoint to show all active listeners
 // http://localhost:PORT/all
 app.get("/all",(req,res) => {
-  res.write(JSON.stringify(listeners,null,2)); // Returning all active listeners and associated emails
+  let all_listeners = {};
+  Object.entries(listeners).map(listener => {
+    all_listeners[listener[0]] = listener[1].emails; // Selecting only pincode and emails to return, excluding interval
+  })
+  res.write(JSON.stringify(all_listeners,null,2)); // Returning all active listeners and associated emails
   res.end(); // Ending the response
 })
 
