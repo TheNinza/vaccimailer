@@ -79,6 +79,13 @@ It also sends the json for available slots on
 127.0.0.1:8000
 ```
 
+Alternatively you can use docker. To build and run the image run the following 2 commands:
+
+```bash
+docker build -t vaccimailer . --no-cache
+docker run --rm -d -p 8000:8000 --name vaccimailer vaccimailer
+```
+
 ## Development
 
 Want to contribute? Great!
