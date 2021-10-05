@@ -3,6 +3,7 @@ const got = require("got");
 const dotenv = require("dotenv");
 const nodemailer = require("nodemailer");
 const express = require("express")
+const moment = require('moment');
 const app = express()
 
 dotenv.config();
@@ -39,12 +40,9 @@ let dataArray = [];
 
 // add pincode and date of vaccination
 const pincode = "731101";
-const d = new Date()
 
 // vaccination date is the next day in following format
-const vaccinationDate = d.getMonth() < 9 ? `${d.getDate()}-0${d.getMonth() + 1}-${d.getFullYear()}` : `${d.getDate()}-${d.getMonth()}-${d.getFullYear()}`;
-
-
+const vaccinationDate = moment().add(1, 'd').format('DD-MM-YYYY');
 
 const apiUrl = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pincode}&date=${vaccinationDate}`;
 
