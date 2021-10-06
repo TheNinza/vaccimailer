@@ -50,7 +50,7 @@ const apiUrl = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/fin
 
 const getData = async () => {
   try {
-    Object.entries(listeners).map(async listener => {
+    Object.entries(listeners).map(async (listener) => {
       // Iterate over all active listeners and get availability for each requested pincode
       req_pincode = listener[0];
       const curUrl = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${req_pincode}&date=${vaccinationDate}`;
@@ -61,17 +61,41 @@ const getData = async () => {
 
       //Data is filtered with limitations on the minimum age limit and available capacity
       let availableSlots = dataArray.filter(
-        obj => obj.min_age_limit < 45 && obj.available_capacity > 0
+        (obj) => obj.min_age_limit < 45 && obj.available_capacity > 0
       );
 
       // Play some sound if slots are available and get notified
 
       if (availableSlots.length > 0) {
-        console.log(availableSlots);
-        listener[1].emails.forEach(req_email => {
-          // Iterate over all email addresses associated with pincode
-          sendEmail(JSON.stringify(availableSlots, null, 2), req_email); // Send email
+        // showing the table in terminal
+
+        const actualDataToDisplay = availableSlots.map((slot) => {
+          const {
+            session_id,
+            slots,
+            lat,
+            long,
+            allow_all_age,
+            state_name,
+            district_name,
+            block_name,
+            pincode,
+            min_age_limit,
+            center_id,
+            from,
+            to,
+            date,
+            ...necessaryData
+          } = slot; // a neat trick to exclude keys from an object
+          return necessaryData;
         });
+
+        console.table(actualDataToDisplay);
+
+        // listener[1].emails.forEach((req_email) => {
+        //   // Iterate over all email addresses associated with pincode
+        //   sendEmail(JSON.stringify(availableSlots, null, 2), req_email); // Send email
+        // });
         clearInterval(listener[1].interval);
         delete listeners[listener[0]]; // Remove the listener if a mail has been sent
       } else {
@@ -127,7 +151,7 @@ app.get("/subscribe", (req, res) => {
       emails: [req_email],
       interval: setInterval(() => {
         getData();
-      }, 100000),
+      }, 10000),
     };
   }
   res.end(); // Ending the response
@@ -137,7 +161,7 @@ app.get("/subscribe", (req, res) => {
 // http://localhost:PORT/unsubscribe?email=EMAIL
 app.get("/unsubscribe", (req, res) => {
   let req_email = req.query.email; // Getting email from url query
-  Object.entries(listeners).map(listener => {
+  Object.entries(listeners).map((listener) => {
     // Mapping over the active listeners
     if (listener[1].emails.includes(req_email)) {
       listener[1].emails.splice(listener[1].emails.indexOf(req_email), 1); // Removing the email if it exists in current listener
@@ -153,7 +177,7 @@ app.get("/unsubscribe", (req, res) => {
 // http://localhost:PORT/all
 app.get("/all", (req, res) => {
   let all_listeners = {};
-  Object.entries(listeners).map(listener => {
+  Object.entries(listeners).map((listener) => {
     all_listeners[listener[0]] = listener[1].emails; // Selecting only pincode and emails to return, excluding interval
   });
   res.write(JSON.stringify(all_listeners, null, 2)); // Returning all active listeners and associated emails
