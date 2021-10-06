@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-//Sends email to a specified email address
+// Sends mail to specified email address
 const sendEmail = (text, send_to) => {
   transporter.sendMail(
     {
@@ -54,19 +54,43 @@ const getData = async () => {
       const result = await axios.get(curUrl);
       const response = result.data;
       dataArray = response.sessions;
-      let availableSlots = dataArray.filter((obj) => obj.min_age_limit < 45);
+
+      //Data is filtered with limitations on the minimum age limit and available capacity
+      let availableSlots = dataArray.filter(
+        (obj) => obj.min_age_limit < 45 && obj.available_capacity > 0
+      );
 
       // Play some sound if slots are available and get notified
       if (availableSlots.length > 0) {
-        console.log(availableSlots);
-        // Iterate over all email addresses associated with pincode
-        listener[1].emails.forEach((req_email) => {
-          sendEmail(JSON.stringify(availableSlots, null, 2), req_email); // Send email
+        // showing the table in terminal
+
+        const actualDataToDisplay = availableSlots.map((slot) => {
+          const {
+            session_id,
+            slots,
+            lat,
+            long,
+            allow_all_age,
+            state_name,
+            district_name,
+            block_name,
+            pincode,
+            min_age_limit,
+            center_id,
+            from,
+            to,
+            date,
+            ...necessaryData
+          } = slot; // a neat trick to exclude keys from an object
+          return necessaryData;
         });
+
+        console.table(actualDataToDisplay);
+
         clearInterval(listener[1].interval);
         delete listeners[listener[0]]; // Remove the listener if a mail has been sent
       } else {
-        const date = new Date(); //else send a message saying no slots are available for that date
+        const date = new Date();
         console.log(
           date.toTimeString(),
           "no available slots available for",
@@ -109,7 +133,7 @@ app.get("/subscribe", (req, res) => {
       emails: [req_email],
       interval: setInterval(() => {
         getData();
-      }, 100000),
+      }, 10000),
     };
   }
   res.end(); // Ending the response
@@ -144,6 +168,7 @@ app.get("/all", (req, res) => {
 
 const port = process.env.PORT || 8000;
 
+//Binds and listens the connections on the specified port
 app.listen(port, () => {
   console.log(`App is running on port ${port}`);
 });
