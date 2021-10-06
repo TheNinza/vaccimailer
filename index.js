@@ -1,5 +1,4 @@
 const axios = require("axios");
-const got = require("got");
 const dotenv = require("dotenv");
 const nodemailer = require("nodemailer");
 const express = require("express");
@@ -16,8 +15,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Sends mail to specified email address
 const sendEmail = (text, send_to) => {
-  // Sends mail to specified address
   transporter.sendMail(
     {
       from: process.env.GMAIL_EMAIL,
@@ -35,15 +34,13 @@ const sendEmail = (text, send_to) => {
   );
 };
 
-// sendEmail("first email from server");
-
 let listeners = {}; // Stores all active listeners and their associated email addresses
 let dataArray = [];
 
 // add pincode and date of vaccination
 const pincode = "731101";
 
-// vaccination date is the next day in following format
+// vaccination date is the next day in 'DD-MM-YYYY' format
 const vaccinationDate = moment().add(1, "d").format("DD-MM-YYYY");
 
 const apiUrl = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pincode}&date=${vaccinationDate}`;
@@ -57,7 +54,6 @@ const getData = async () => {
       const result = await axios.get(curUrl);
       const response = result.data;
       dataArray = response.sessions;
-      // console.log(dataArray);
 
       //Data is filtered with limitations on the minimum age limit and available capacity
       let availableSlots = dataArray.filter(
@@ -65,7 +61,6 @@ const getData = async () => {
       );
 
       // Play some sound if slots are available and get notified
-
       if (availableSlots.length > 0) {
         // showing the table in terminal
 
@@ -92,10 +87,6 @@ const getData = async () => {
 
         console.table(actualDataToDisplay);
 
-        // listener[1].emails.forEach((req_email) => {
-        //   // Iterate over all email addresses associated with pincode
-        //   sendEmail(JSON.stringify(availableSlots, null, 2), req_email); // Send email
-        // });
         clearInterval(listener[1].interval);
         delete listeners[listener[0]]; // Remove the listener if a mail has been sent
       } else {
@@ -116,15 +107,6 @@ console.log("API URL:", apiUrl);
 console.log(vaccinationDate);
 
 getData();
-
-// console.log(
-//   `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pincode}&date=${vaccinationDate}`
-// );
-
-// running function every 30 seconds
-// const myInt = setInterval(() => {
-//   getData();
-// }, 100000);
 
 //created a server using express
 app.get("/", (req, res) => {
@@ -186,6 +168,7 @@ app.get("/all", (req, res) => {
 
 const port = process.env.PORT || 8000;
 
+//Binds and listens the connections on the specified port
 app.listen(port, () => {
   console.log(`App is running on port ${port}`);
 });
