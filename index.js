@@ -1,12 +1,12 @@
 const axios = require("axios");
 const dotenv = require("dotenv");
 const nodemailer = require("nodemailer");
-const express = require("express")
-const moment = require('moment');
-const cors = require('cors');
-const app = express()
+const express = require("express");
+const moment = require("moment");
+const cors = require("cors");
+const app = express();
 
-app.use(cors())
+app.use(cors());
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
@@ -37,15 +37,9 @@ const sendEmail = (text, send_to) => {
 };
 
 let listeners = {}; // Stores all active listeners and their associated email addresses
-let dataArray = [];
-
-// add pincode and date of vaccination
-const pincode = "400004";
 
 // vaccination date is the next day in 'DD-MM-YYYY' format
 const vaccinationDate = moment().add(1, "d").format("DD-MM-YYYY");
-
-const apiUrl = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pincode}&date=${vaccinationDate}`;
 
 const getData = async () => {
   try {
@@ -54,18 +48,15 @@ const getData = async () => {
       req_pincode = listener[0];
       const curUrl = `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${req_pincode}&date=${vaccinationDate}`;
       const result = await axios.get(curUrl);
-      const response = result.data;
-      dataArray = response.sessions;
+      const { sessions } = result.data;
 
       //Data is filtered with limitations on the minimum age limit and available capacity
-      let availableSlots = dataArray.filter(
+      let availableSlots = sessions.filter(
         (obj) => obj.min_age_limit < 45 && obj.available_capacity > 0
       );
 
-      // Play some sound if slots are available and get notified
       if (availableSlots.length > 0) {
         // showing the table in terminal
-
         const actualDataToDisplay = availableSlots.map((slot) => {
           const {
             session_id,
@@ -89,8 +80,15 @@ const getData = async () => {
 
         console.table(actualDataToDisplay);
 
+        // Sending emails to notify people
+        listener[1].emails.forEach((req_email) => {
+          // Iterate over all email addresses associated with pincode
+          sendEmail(JSON.stringify(availableSlots, null, 2), req_email); // Send email
+        });
+
+        // Stopping listenning for the updates
         clearInterval(listener[1].interval);
-        delete listeners[listener[0]]; // Remove the listener if a mail has been sent
+        delete listeners[listener[0]];
       } else {
         const date = new Date();
         console.log(
@@ -101,18 +99,13 @@ const getData = async () => {
       }
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
-console.log("API URL:", apiUrl);
-console.log(vaccinationDate);
-
-getData();
-
 //created a server using express
 app.get("/", (req, res) => {
-  res.write(JSON.stringify(dataArray, null, 2)); //write a response to the client
+  // new requirement will be added soon
   res.end(); //end the response
 });
 
