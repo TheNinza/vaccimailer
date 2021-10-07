@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaccimailer</title>
+    <link rel="stylesheet" href="./style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-uWxY/CJNBR+1zjPWmfnSnVxwRheevXITnMqoEIeG1LJrdI0GlVs/9cVSyPYXdcSF" crossorigin="anonymous">
+</head>
+
+<body>
+    <!-- Navigation bar   -->
+    <nav class="navbar">
+        <div class="container-fluid nav-top">
+            <span class="navbar-brand mb-0 h1">Vaccimailer</span>
+        </div>
+        <div class="container-fluid">
+            <p>Made with ❤️ by <a href="https://github.com/TheNinza" target="_blank"> @TheNinza</a> </p>
+        </div>
+    </nav>
+
+    <!-- Table heading  -->
+    <div class="container table_heading">
+        Vaccination Details
+    </div>
+
+    <!-- Table  -->
+    <table class="table">
+
+        <!-- Column names  -->
+        <thead>
+            <tr>
+                <th scope="col">Center Id</th>
+                <th scope="col">Name</th>
+                <th scope="col">Address</th>
+                <th scope="col">From</th>
+                <th scope="col">To</th>
+                <th scope="col">Fee Type</th>
+                <th scope="col">Minimum Age</th>
+                <th scope="col">Vaccine</th>
+                <th scope="col">Slots</th>
+            </tr>
+        </thead>
+
+        <!-- Table rows  -->
+        <tbody id="table_body">
+            <!-- Details of the sessions will be added here via script.js   -->
+        </tbody>
+    </table>
+
+    <!-- Message to be shown if no ceenter is available  -->
+    <div class="vaccine_unavailable hidden">
+        <img src="./assets/embarrassed.png" alt="">
+        <p>Sorry, no centres are available for now.</p>
+        <p>You can try agian after sometime.</p>
+    </div>
+
+</body>
+<script src="./script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-kQtW33rZJAHjgefvhyyzcGF3C5TFyBQBA13V1RKPf4uH+bwyzQxZ6CmMZHmNBEfJ" crossorigin="anonymous"></script>
+
+</html>

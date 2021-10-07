@@ -1,10 +1,12 @@
 const axios = require("axios");
 const dotenv = require("dotenv");
 const nodemailer = require("nodemailer");
-const express = require("express");
-const moment = require("moment");
-const app = express();
+const express = require("express")
+const moment = require('moment');
+const cors = require('cors');
+const app = express()
 
+app.use(cors())
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
@@ -38,7 +40,7 @@ let listeners = {}; // Stores all active listeners and their associated email ad
 let dataArray = [];
 
 // add pincode and date of vaccination
-const pincode = "731101";
+const pincode = "400004";
 
 // vaccination date is the next day in 'DD-MM-YYYY' format
 const vaccinationDate = moment().add(1, "d").format("DD-MM-YYYY");
