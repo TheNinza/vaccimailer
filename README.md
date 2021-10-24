@@ -10,7 +10,6 @@ Vaccimailer emails you when vaccination is available at a given pincode.
 
 ![NodeJS](https://img.shields.io/badge/NodeJS-05122A?style=for-the-badge&logo=node.js)&nbsp;
 
-
 ## Installation
 
 Install the dependencies and devDependencies and start the server.
@@ -21,15 +20,9 @@ cd vaccinator
 npm install
 ```
 
-For running the application
+## For running the application
 
-In index.js, find and modify pin code at line 39.
-
-```js
-const pincode = "YOUR_PIN_CODE";
-```
-
-Also you can look for a particular date by modifying vaccinationDate string at line 43 in DD-MM-YYYY format.
+You can look for a particular date by modifying vaccinationDate value at line 42 to DD-MM-YYYY format.
 By default, it checks for the next day availabilities.
 
 ```js
@@ -49,11 +42,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const sendEmail = (text) => {
+const sendEmail = (text, send_to) => {
   transporter.sendMail(
     {
       from: process.env.GMAIL_EMAIL,
-      to: process.env.GMAIL_EMAIL_REC,
+      to: send_to,
       subject: "Cowin available",
       text,
     },
@@ -73,7 +66,20 @@ From your shell, run
 ```sh
 npm start
 ```
-It also sends the json for available slots on
+
+To input the email address (EMAIL) and pincode (PINCODE) to assign the listener, use the following endpoint:
+
+`http://localhost:PORT/subscribe?pincode=PINCODE&email=EMAIL`
+
+To get a list of all active listeners, use the following endpoint:
+
+`http://localhost:PORT/all`
+
+To unsubscribe and remove listener, use the following endpoint:
+
+`http://localhost:PORT/unsubscribe?email=EMAIL`
+
+The json for available slots is sent on:
 
 ```sh
 127.0.0.1:8000
@@ -85,6 +91,12 @@ Alternatively you can use docker. To build and run the image run the following 2
 docker build -t vaccimailer . --no-cache
 docker run --rm -d -p 8000:8000 --name vaccimailer vaccimailer
 ```
+
+Additionally, a user friendly front-end has been added which fetches data from the local server and displays the information as follows:
+
+![Data](https://user-images.githubusercontent.com/78133928/138590566-eb05e993-4404-45a5-bbbe-cf635705fb39.png)
+
+![Error](https://user-images.githubusercontent.com/78133928/138590592-13c38369-7d17-49df-aa71-1ea56d2cc88f.png)
 
 ## Development
 
